@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +18,7 @@ namespace QuanLyHeThongBanHang
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            
+
             // Cấu hình CORS cho phép Frontend gọi API
             builder.Services.AddCors(options =>
             {
@@ -31,7 +32,7 @@ namespace QuanLyHeThongBanHang
 
             // Đăng ký AppDbContext với chuỗi kết nối từ appsettings.json
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Thêm Identity Core với Password Policy đơn giản cho môi trường Dev
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -177,7 +178,7 @@ namespace QuanLyHeThongBanHang
                         if (result.Succeeded)
                         {
                             await userManager.AddToRoleAsync(user, "Admin");
-                            
+
                             // Grant all permissions to the initial admin
                             var allFns = await dbContext.AppFunctions.ToListAsync();
                             foreach (var f in allFns)
